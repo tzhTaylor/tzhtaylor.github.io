@@ -1,0 +1,155 @@
+---
+import BaseHead from "$components/BaseHead.astro";
+import Header from "$components/Header.astro";
+import Footer from "$components/Footer.astro";
+import { SITE_TITLE, SITE_DESCRIPTION } from "$consts";
+// @ts-ignore
+import AboutContent from "../../content/other/about.typ?html&body";
+
+interface Article {
+  frontmatter: {
+    title: string;
+    date: string;
+    desc: string;
+  };
+  file: string;
+}
+
+// Get all articles
+const articles = await import.meta.glob<Article>(
+  "../../content/article/*.typ",
+  { eager: true }
+);
+// Sort articles by date (newest first)
+const sortedArticles = Object.values(articles).sort((a, b) => {
+  const dateA = new Date(a.frontmatter.date);
+  const dateB = new Date(b.frontmatter.date);
+  return dateB.getTime() - dateA.getTime();
+});
+// Get only the latest article
+const latestArticle = sortedArticles[0];
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <BaseHead title={SITE_TITLE} description={SITE_DESCRIPTION} />
+  </head>
+  <body>
+    <Header />
+    <main>
+      <img
+        src="/blog/logo.png"
+        alt="Logo"
+        class="logo"
+        style="display: block; margin: 1.5rem auto 3rem auto; max-width: 400px; width: 100%;"
+      />
+
+      <section
+        class="latest-articles"
+        style="max-width: 800px; margin: 2rem auto; padding: 0 1rem;"
+      >
+        <h2 style="text-align: center; margin-bottom: 2rem;">Recent Article</h2>
+        <div class="articles-grid" style="display: grid; gap: 2rem;">
+          {
+            latestArticle && (
+              <article class="article-card">
+                <h3 style="margin: 0 0 0.5rem 0;">
+                  <a
+                    href={`/blog/article/${latestArticle.file.split("/").pop()?.replace(".typ", "")}`}
+                    style="color: inherit; text-decoration: none;"
+                  >
+                    {latestArticle.frontmatter.title}
+                  </a>
+                </h3>
+                <p style="color: #666; margin: 0.5rem 0;">
+                  {latestArticle.frontmatter.date}
+                </p>
+                <p style="color: #666; margin: 0.5rem 0;">
+                  {latestArticle.frontmatter.desc}
+                </p>
+              </article>
+            )
+          }
+          <div style="text-align: center; margin-top: 1rem;">
+            <a href="/blog/article" class="more-link">More</a>
+          </div>
+        </div>
+      </section>
+    </main>
+    <Footer />
+    <style>
+      .logo {
+        content: url("/blog/logo.png");
+      }
+      :root.dark .logo {
+        content: url("/blog/logo-dark.png");
+      }
+      .more-link {
+        color: #000000ce;
+        text-decoration: none;
+        font-size: 1rem;
+        border-radius: 4px;
+        transition:
+          background 0.2s,
+          color 0.2s,
+          box-shadow 0.2s,
+          padding 0.2s,
+          border-radius 0.2s;
+        padding: 0;
+        background: none;
+        box-shadow: none;
+        backdrop-filter: none;
+        border: none;
+        display: inline-block;
+      }
+      .more-link:hover {
+        background: rgba(255, 255, 255, 0.6);
+        backdrop-filter: blur(8px);
+        color: #000000ce;
+        padding: 0.4rem 1.2rem;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+        border-radius: 24px;
+      }
+      .article-card {
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        transition:
+          transform 0.2s ease,
+          box-shadow 0.2s ease,
+          border-color 0.2s;
+        overflow: hidden;
+        border: none;
+        padding: 1.5rem;
+      }
+      .article-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        border-color: #b3d1f7;
+      }
+
+      :root.dark .more-link {
+        color: #ffffffce;
+      }
+      :root.dark .more-link:hover {
+        background: rgba(255, 255, 255, 0.1);
+        color: #ffffffce;
+      }
+      :root.dark .article-card {
+        background: #1a1a1a;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+      }
+      :root.dark .article-card:hover {
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        border-color: #4a7cb8;
+      }
+      :root.dark .article-card h3 a {
+        color: #ffffff;
+      }
+      :root.dark .article-card p {
+        color: #a0a0a0;
+      }
+    </style>
+  </body>
+</html>
