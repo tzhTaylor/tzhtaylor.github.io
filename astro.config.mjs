@@ -7,8 +7,8 @@ import { URL_BASE } from "./config.json";
 // https://astro.build/config
 export default defineConfig({
   // Deploys to GitHub Pages
-  site: "https://myriad-dreamin.github.io",
-  base: URL_BASE,
+  site: "https://tzhtaylor.github.io",
+  base: "/blog",
 
   integrations: [
     sitemap(),
@@ -20,4 +20,15 @@ export default defineConfig({
       },
     }),
   ],
+
+  vite: {
+    resolve: {
+      alias: {
+        "$styles": "/src/styles",
+        "$components": "/src/components",
+        "$layouts": "/src/layouts",
+        "$consts": "/src/consts",
+      },
+    },
+  },
 });
